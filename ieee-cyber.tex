@@ -365,18 +365,18 @@ Our system is able to aggregate distributed PQ measurements, request raw PQ data
 
 %In late 2014 we performed a pilot study to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. 
 
-Recently, we've collected [TODO: HOW MUCH] data from [TODO: HOW MANY] devices from devices distributed across Oahu. We found [TODO: WHAT].
+Each OPQBox2 processes 2.7 billion samples per day. OPQBox2's forward to the cloud service 500,000 PQ measurements per day. In general, we see on the order of one grid wide power quality event per day with a small number of devices.
 
 Finally, we could produce these boxes for under \$100 each. This is roughly an order of magnitude cheaper than other power quality monitoring equipment and is better suited for our applications.
 
-\section{Related Work}
-[TODO:]
+%\section{Related Work}
+%[TODO:]
 
 \section{OPQ Version 2 Architecture}
 \subsection{OPQBox2}
 OPQBox2 is a modern, high performance, sensor network centered power quality monitor. OPQBox2 provides high resolution sampled data of up to 50kS/s at 16bits. Optional GPS synchronization and battery backup can be added to the OPQBox2 to tailor it to a specific power quality measurement. 
 
-While the sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry Pi collects 10 AC cycles of ADC measurements at a time and computes the fundamental frequency and $V_{rms}$. These values are sent to the cloud triggering service, OPQMakai, via WiFi while the raw waveforms are buffered on the OPQBox2 for 1 hour. The waveform data is split into chunks of ten cycles each. Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(n\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
+While the sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry Pi collects 10 AC cycles of ADC measurements at a time and computes the fundamental frequency and $V_{rms}$. These values are sent to the cloud triggering service, OPQMakai, via WiFi while the raw waveforms are buffered on the OPQBox2 for 1 hour. The waveform data is split into chunks of ten cycles each. Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
 
 The acquisition cloud service may request raw waveforms from the collection of OPQBox2s if the triggering data stream indicated a power quality event. When the triggering server requests data from an OpqBox2, it requests a range of data. This data is queried in Redis, reserialized into a single large data packet, and transfered back to the requesting server over the same ZeroMQ channel that it arrived on. All of the communication between the OPQBox2 and the cloud services are accomplished via an encrypted ZeroMQ connection.
 
@@ -400,11 +400,9 @@ The publish subscribe nature of the plugin system allows plugins to only subscri
 Data products from Mauka are stored in MongoDB and presented to clinets use OPQView.
 
 \subsection{OPQView}
-OPQView serves as the front-end user interface of the OPQ system. It is implemented via MeteorJS, an open source JavaScript web framework that offers real-time and reactive bi-directional communication between client and server. Unlike other existing full-stack web frameworks, Meteor was developed specifically to offer a reactive front-end experience, making it a fitting choice for the dynamic and data-driven nature of our application. Meteor, although an emerging technology, is built upon Node.js - a widely used JavaScript runtime environment. Meteor'€™s integration with Node.js grants access to NPM (node package manager) and its large assortment of proven and tested JavaScript modules which we utilize to further enhance the OPQView user experience.
+OPQView serves as the front-end user interface of the OPQ system. It is implemented via MeteorJS.
 
-Broadly speaking, the OPQ system consists of three interdependent components - OPQBoxes, OPQHub, and OPQView. OPQView essentially serves as the end-point of this system, where power data eventually propagates to for user consumption. As such, OPQView is responsible for displaying collected power quality data in a useful and meaningful manner. OPQView does not receive its data directly from OPQBoxes, but rather through the intermediary OPQHub, which is responsible for collecting and analyzing data from OPQBoxes - classifying power quality events as they occur. OPQView maintains a communications interface with OPQHub through the use of a MongoDB database, from which it is able to reactively retrieve real-time power quality data. This data includes voltages and frequencies of individual devices, as well as classified individual power quality events and their corresponding waveform data. OPQView not only serves as a front-end to display real-time data, but also a platform to safely and securely store a complete history of power quality data for each individual device - allowing for users to further analyze historical PQ event data well after they have occurred on the grid. In addition to local event data individual to each device, users can also view distributed events - collections of detected local events that are likely caused by the same grid-wide power event. Over time, OPQHub can determine patterns in these distributed events, allowing OPQView to display '€˜communities' of devices which have a propensity to experience related power events - leading to further insights on how power events tend to propagate through the local grid. The real-time nature of our data allows for a wide potential of visualization techniques - including real-time heat maps of device voltages and frequencies across the grid. OPQView also supplies the administrative interface for OPQBoxes, allowing device owners to adjust their device'€™s privacy and sharing settings as needed. Device owners can choose to publicly share their device'€™s data, or instead only allow a specified set of users access.
-
-Ultimately, we feel that OPQView will serve as a unique platform for power quality analysis and visualization. Meteor's strong support for reactive data models remains its main draw - and is the primary reason we have chosen it for OPQView's implementation. The dynamic and data driven nature of our smart-grid application, and the power grid system as a whole, makes it an ideal and exciting choice.
+OPQView serves as the end-point of this system, where power data eventually propagates to for user consumption. As such, OPQView is responsible for displaying collected power quality data in a useful and meaningful manner. OPQView does not receive its data directly from OPQBoxes, but rather through the intermediary OPQHub.  OPQView maintains a communications interface with OPQHub through the use of a MongoDB database, from which it is able to reactively retrieve real-time power quality data. This data includes voltages and frequencies measured by individual devices, as well as PQ events and their corresponding waveform data. OPQView not only serves as a front-end to display real-time data, but also a platform to safely and securely store a complete history of PQ data. This allows users to display historical PQ event data. In addition to local event data, users can also view distributed events. Over time, OPQHub aims to determine patterns in these distributed events, which would allow OPQView to determine 'communities' of devices with similar PQ characteristics. The real-time nature of our data allows for a wide potential of visualization techniques - including real-time heat maps of device voltages and frequencies across the grid. OPQView also supplies the administrative interface for OPQBoxes, allowing device owners to adjust their device's privacy and sharing settings as needed. 
 
 \section{Results}
 
@@ -506,11 +504,11 @@ Ultimately, we feel that OPQView will serve as a unique platform for power quali
 
 
 
-
-\section{Conclusion}
-We designed a low cost, real-time, open-source framework capable of aggregating distributed PQ measurements, requesting raw PQ data from specific devices, performing high level real-time PQ analysis and classification, and displaying PQ at both the consumer level and the grid level. 
-
-Our system detected multiple local and grid-level PQ events and can also display the current real-time state of the power grid. [TODO: Finish conclusion]
+%
+%\section{Conclusion}
+%We designed a low cost, real-time, open-source framework capable of aggregating distributed PQ measurements, requesting raw PQ data from specific devices, performing high level real-time PQ analysis and classification, and displaying PQ at both the consumer level and the grid level. 
+%
+%Our system detected multiple local and grid-level PQ events and can also display the current real-time state of the power grid. [TODO: Finish conclusion]
 
 
 % trigger a \newpage just before the given reference
