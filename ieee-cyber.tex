@@ -42,96 +42,12 @@
 %%*************************************************************************
 
 
-% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
-% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
-% *** with production work. The IEEE's font choices and paper sizes can   ***
-% *** trigger bugs that do not appear when using other class files.       ***                          ***
-% The testflow support page is at:
-% http://www.michaelshell.org/tex/testflow/
-
-
 
 \documentclass[a4paper, conference]{IEEEtran}
-% Some Computer Society conferences also require the compsoc mode option,
-% but others use the standard conference format.
-%
-% If IEEEtran.cls has not been installed into the LaTeX system files,
-% manually specify the path to it like:
-% \documentclass[conference]{../sty/IEEEtran}
 
-
-
-
-
-% Some very useful LaTeX packages include:
-% (uncomment the ones you want to load)
-
-
-% *** MISC UTILITY PACKAGES ***
-%
-%\usepackage{ifpdf}
-% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
-% compilation based on whether the output is pdf or dvi.
-% usage:
-% \ifpdf
-%   % pdf code
-% \else
-%   % dvi code
-% \fi
-% The latest version of ifpdf.sty can be obtained from:
-% http://www.ctan.org/pkg/ifpdf
-% Also, note that IEEEtran.cls V1.7 and later provides a builtin
-% \ifCLASSINFOpdf conditional that works the same way.
-% When switching from latex to pdflatex and vice-versa, the compiler may
-% have to be run twice to clear warning/error messages.
-
-
-
-
-
-
-% *** CITATION PACKAGES ***
-%
-%\usepackage{cite}
-% cite.sty was written by Donald Arseneau
-% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
-% \cite{} output to follow that of the IEEE. Loading the cite package will
-% result in citation numbers being automatically sorted and properly
-% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
-% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
-% \cite will automatically add leading space, if needed. Use cite.sty's
-% noadjust option (cite.sty V3.8 and later) if you want to turn this off
-% such as if a citation ever needs to be enclosed in parenthesis.
-% cite.sty is already installed on most LaTeX systems. Be sure and use
-% version 5.0 (2009-03-20) and later if using hyperref.sty.
-% The latest version can be obtained at:
-% http://www.ctan.org/pkg/cite
-% The documentation is contained in the cite.sty file itself.
-
-
-
-
-
-
-% *** GRAPHICS RELATED PACKAGES ***
-%
 \ifCLASSINFOpdf
   \usepackage[pdftex]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../pdf/}{../jpeg/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
 \else
-  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
-  % will default to the driver specified in the system graphics.cfg if no
-  % driver is specified.
-  % \usepackage[dvips]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../eps/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.eps}
 \fi
 % graphicx was written by David Carlisle and Sebastian Rahtz. It is
 % required if you want graphics, photos, etc. graphicx.sty is already
@@ -338,36 +254,20 @@ Oahu, Hawaii\\
 \begin{abstract}
 OpenPowerQuality (OPQ) is a framework that supports end-to-end capture, analysis, and visualizations of distributed real-time power quality (PQ) data. Version 2 of OPQ builds on version 1 by providing higher sampling rates, optional battery backup, end-to-end security, GPS synchronization, pluggable analysis, and a real-time visualization framework. The OPQ project makes real-time distributed power measurements which allows users to see both local PQ events and grid-wide PQ events. The OPQ project is split into three major parts: back-end hardware for making power measurements, middleware for data acquisition and analysis, and a front-end providing visualizations. OPQBox2 is a hardware platform that takes PQ measurements, provides onboard analysis, and securely transfers data to our middleware. The OPQ middleware performs triggering on the OPQBox2 sensor network and performs high-level PQ analysis. The results of our PQ analysis and real-time state of the sensor network are displayed using OPQView. We've collected distributed PQ data from locations across Oahu, Hawaii and have demonstrated our ability to detect both local and grid-wide power quality events.
 \end{abstract}
-
-% no keywords
-
-
-
-
-% For peer review papers, you can put extra information on the cover
-% page as needed:
-% \ifCLASSOPTIONpeerreview
-% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
-% \fi
-%
-% For peerreview papers, this IEEEtran command inserts a page break and
-% creates the second title. It will be ignored for other modes.
 \IEEEpeerreviewmaketitle
-
-
 
 \section{Introduction}
 As power grids transition from a centralized distribution model to a distributed model, maintaining a stable grid requires fine grained knowledge of how distributed renewables are affecting the state of the grid. Monitoring PQ on a distributed generation smartgrid requires a consumer level distributed sensor network. How do we collect, analyze, and visualize power quality (PQ) on the power grid scale using data gathered from residential utility customers? 
 
 To answer this question, we developed and deployed an open source hardware and software system focused on consumer level monitoring across Oahu. 
 
-Our system is able to aggregate distributed PQ measurements, request raw PQ data from specific devices, perform high level real-time PQ analysis and classification, and display PQ at both the consumer level and the grid level. At its core is a multi-layered framework consisting of a hardware backend for measuring distributed PQ data, a middleware for triggering and higher level PQ analysis, and a frontend for consumer friendly local and grid level PQ visualizations. The architecture is visualized in in figure \ref{fig:system-architecture}.
+Our system is able to aggregate distributed PQ measurements, perform high level real-time PQ analysis and classification, and display PQ at both the consumer level and the grid level. OPQ is a multi-layered framework consisting of a custom hardware for collecting distributed PQ data, a middleware for filtering and event detection, higher level PQ analysis, and finally a front-end for consumer friendly local and grid level PQ visualizations. The architecture is visualized in in figure \ref{fig:system-architecture}.
 
 %In late 2014 we performed a pilot study to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. 
 
-Each OPQBox2 processes 2.7 billion samples per day. OPQBox2's forward to the cloud service 500,000 PQ measurements per day. In general, we see on the order of one grid wide power quality event per day with a small number of devices.
+Each OPQBox2 processes 2.7 billion samples per day. Using node level feature extraction OPQBox2's forward only 500,000 measurements to the cloud service in the same 24 hours. Further analysis and filtering yields 1 distributed PQ event per day.  Through the use of our multi-tiered systems we aim to bring the operators and end users, useful, intuitive, actable, real-time information about the state of the grid.
 
-Finally, we could produce these boxes for under \$100 each. This is roughly an order of magnitude cheaper than other power quality monitoring equipment and is better suited for our applications.
+%Finally, we could produce these boxes for under \$100 each. This is roughly an order of magnitude cheaper than other power quality monitoring equipment and is better suited for our applications.
 
 \begin{figure*}[htb!]\label{fig:system-architecture}
     \centering
@@ -380,30 +280,30 @@ Finally, we could produce these boxes for under \$100 each. This is roughly an o
 
 \section{OPQ Version 2 Architecture}
 \subsection{OPQBox2}
-OPQBox2 is a modern, high performance, sensor network centered power quality monitor. OPQBox2 provides high resolution sampled data of up to 50kS/s at 16bits. Optional GPS synchronization and battery backup can be added to the OPQBox2 to tailor it to a specific power quality measurement. 
+OPQBox2 is a modern, high performance, power quality monitor built with distributed measurements in mind. OPQBox2 provides high resolution sampled data of up to 50kS/s at 16bits. Optional GPS synchronization and battery backup can be added to the OPQBox2 to tailor it to a specific power quality measurement. 
 
-While the sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry Pi collects 10 AC cycles of ADC measurements at a time and computes the fundamental frequency and $V_{rms}$. These values are sent to the cloud triggering service, OPQMakai, via WiFi while the raw waveforms are buffered on the OPQBox2 for 1 hour. The waveform data is split into chunks of ten cycles each. Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
+While the sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry PI collects 10 AC cycles of ADC measurements at a time and computes the utility frequency and $V_{rms}$. These values are sent to the cloud triggering broker via WiFi while the raw waveforms are buffered in the local Redis key value store.
+%Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
 
-The acquisition cloud service may request raw waveforms from the collection of OPQBox2s if the triggering data stream indicated a power quality event. When the triggering server requests data from an OpqBox2, it requests a range of data. This data is queried in Redis, reserialized into a single large data packet, and transfered back to the requesting server over the same ZeroMQ channel that it arrived on. All of the communication between the OPQBox2 and the cloud services are accomplished via an encrypted ZeroMQ connection.
+The cloud service may request raw waveforms from the collection of OPQBox2s if the triggering data stream indicated a power quality event. When the triggering server requests data from an OpqBox2, it requests a range of data. This data is queried in Redis, reserialized into a single large data packet, and transfered back to the requesting server over the same ZeroMQ channel that it arrived on. All of the communication between the OPQBox2 and the cloud services are done over an encrypted ZeroMQ connection.
 
-In this paper we verify the synchronization provided by Network Time Protocol (NTP) by comparing power data collected from two different boxes. We can verify the synchronization by cross-correlating both signals with each other. The resulting signal from the cross correlation is at a maximum equal to the delay of the signals.
+Time synchronization of the OPQBox2 is performed via Network Time Protocol (NTP). While OPQBox2 has the capability to use GPS, we found NTP to be suitable for our system.
+In this paper we verify the synchronization provided by Network Time Protocol (NTP) by comparing frequency measurements collected from two OPQBox2 devices and examining their phase difference. 
 
-We also confirm the frequency resolution of the OPQBox by supplying it a 60 Hz signal from a function generator and observing the data recorded by the box. We plot the frequency data and found that our box can accurately record the frequency supplied by the generator.
+%We also confirm the frequency resolution of the OPQBox by supplying it a 60 Hz signal from a function generator and observing the data recorded by the box. We plot the frequency data and found that our box can accurately record the frequency supplied by the generator.
 
 \subsection{OPQHub}
-OPQHub is OPQ's middleware system and is responsible for requesting fine-grained data from OPQBox2's and for performing high level PQ analysis.  OPQHub is split into two components, OPQMakai, a pluggable triggering and data request component and OPQMauka, a pluggable real-time PQ analysis component.
+OPQHub is OPQ's middleware system and is responsible for collecting raw and feature extracted data from OPQBox2's and for performing high level PQ analysis.  OPQHub is split into two components, OPQMakai, a pluggable filtering and data request component and OPQMauka, a pluggable real-time PQ analysis component.
 
-All communication between the OPQBox2 and the analysis stack passes through two connection brokers. These brokers allow us to terminate encryption at the cloud boundary, thus simplifying the analysis framework. 
+All communication between the OPQBox2 and the analysis stack passes through two connection brokers. These brokers allow us to terminate encryption at the cloud boundary, thus simplifying the analysis framework. ZeroMq is used throughout our cloud infrastructure to connect the analysis plugins to brokers and other plugins. This allows us to form ad-hoc analysis topologies, such as pipeline of processing, and map reduce pipelines without interfering with regular data acquisition.
 
-ZeroMq is used throughout our cloud infrastructure to connect the analysis services to brokers. 
+Triggering stream consists of the feature reduced data(frequency and $V_{rms}$) for each device in the OPQ2 network. This stream is brokered via the Triggering broker, and analyzed by the set of analysis plugins called Makai. If multiple devices show temporally coherent deviation from the norm, Makai will request the raw data from the OPQBox2 devices via the Acquisition broker. 
 
-Triggering stream consists of the feature reduced data(frequency and $V_{rms}$ measurements) for each device in the OPQ2 network. This stream is brokered via the Triggering broker, and analyzed by the set of analysis processes called Makai. If multiple devices show temporally coherent deviation from the norm, Makai will request the raw data from the OPQBox2 devices via the Acquisition broker. 
+Further analysis of the raw waveform is performed by OPQMauka analysis and classification system.  Each of the plugins in OPQMauka are responsible for different PQ classification and analysis tasks. We currently implement plugins that detect and report PQ measurements, voltage sags and swells, frequency sags and swells, and perform ITIC event classification of voltage events. We've also developed plugins that, along with the triggering framework OPQMakai, allow us to detect these events on a distributed level. Data products from Mauka are stored in MongoDB and presented to clinets use OPQView.
 
-Further analysis of the raw waveform is performed by OPQMauka analysis and classification system.  Each of the plugins in OPQMauka are responsible for different PQ classification and analysis tasks. We currently implement plugins that detect and report PQ measurements, voltage sags and swells, frequency sags and swells, and perform ITIC event classification of voltage events. We've also developed plugins that, along with the triggering framework OPQMakai, allow us to detect these events on a distributed level.
 
-The publish subscribe nature of the plugin system allows plugins to only subscribe to channels they're interested in and produce results that other plugins may be interested in. This allows us to form a pipeline of processing on the cloud side. For example, the voltage analysis plugin will monitor voltage thresholds and report voltage dips and swells. When the voltage plugin encounters an event, it will produce a voltage event message. The ITIC plugin will consume voltage event messages and classify them by their ITIC classification.
+%For example, the voltage analysis plugin will monitor voltage thresholds and report voltage dips and swells. When the voltage plugin encounters an event, it will produce a voltage event message. The ITIC plugin will consume voltage event messages and classify them by their ITIC classification.
 
-Data products from Mauka are stored in MongoDB and presented to clinets use OPQView.
 
 \subsection{OPQView}
 OPQView serves as the front-end user interface of the OPQ system. It is implemented via MeteorJS.
@@ -412,7 +312,16 @@ OPQView serves as the end-point of this system, where power data eventually prop
 
 \section{Results}
 
-[TODO:]
+Curretly OPQHub is capable of detecting and recording frequency and 
+voltage based events. Voltage based events include sags swells and flicker.
+Frequency events are limited to frequency deviation from the nominal. Example of a frequency event is shown in Figure \ref{fig:event}, this event occurred during the lighting storm March 1st 2017. Two devices were separated by 5 miles and were connected to different separate substations.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{img/Event1_f.eps}
+    \caption{Frequency event.}
+    \label{fig:event}
+\end{figure}
 
 % An example of a floating figure using the graphicx package.
 % Note that \label must occur AFTER (or within) \caption.
