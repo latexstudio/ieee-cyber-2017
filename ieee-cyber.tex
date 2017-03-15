@@ -51,7 +51,7 @@
 
 
 
-\documentclass[conference]{IEEEtran}
+\documentclass[a4paper, conference]{IEEEtran}
 % Some Computer Society conferences also require the compsoc mode option,
 % but others use the standard conference format.
 %
@@ -116,7 +116,7 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
+  \usepackage[pdftex]{graphicx}
   % declare the path(s) where your graphic files are
   % \graphicspath{{../pdf/}{../jpeg/}}
   % and their extensions so you won't have to specify these with
@@ -361,13 +361,19 @@ As power grids transition from a centralized distribution model to a distributed
 
 To answer this question, we developed and deployed an open source hardware and software system focused on consumer level monitoring across Oahu. 
 
-Our system is able to aggregate distributed PQ measurements, request raw PQ data from specific devices, perform high level real-time PQ analysis and classification, and display PQ at both the consumer level and the grid level. At its core is a multi-layered framework consisting of a hardware backend for measuring distributed PQ data, a middleware for triggering and higher level PQ analysis, and a frontend for consumer friendly local and grid level PQ visualizations.
+Our system is able to aggregate distributed PQ measurements, request raw PQ data from specific devices, perform high level real-time PQ analysis and classification, and display PQ at both the consumer level and the grid level. At its core is a multi-layered framework consisting of a hardware backend for measuring distributed PQ data, a middleware for triggering and higher level PQ analysis, and a frontend for consumer friendly local and grid level PQ visualizations. The architecture is visualized in in figure \ref{fig:system-architecture}.
 
 %In late 2014 we performed a pilot study to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. 
 
 Each OPQBox2 processes 2.7 billion samples per day. OPQBox2's forward to the cloud service 500,000 PQ measurements per day. In general, we see on the order of one grid wide power quality event per day with a small number of devices.
 
 Finally, we could produce these boxes for under \$100 each. This is roughly an order of magnitude cheaper than other power quality monitoring equipment and is better suited for our applications.
+
+\begin{figure*}[htb!]\label{fig:system-architecture}
+    \centering
+    \includegraphics[width=\linewidth]{img/system-diagram}
+    \caption{OPQ System Architecture}
+\end{figure*}
 
 %\section{Related Work}
 %[TODO:]
