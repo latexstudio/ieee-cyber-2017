@@ -1,3 +1,3 @@
 all:
-	pdflatex ieee-cyber.tex
+	texi2pdf ieee-cyber.tex
 	evince ieee-cyber.pdf &
