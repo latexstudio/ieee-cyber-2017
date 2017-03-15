@@ -45,6 +45,9 @@
 
 \documentclass[a4paper, conference]{IEEEtran}
 
+
+%\usepackage{epstopdf}
+
 \ifCLASSINFOpdf
   \usepackage[pdftex]{graphicx}
 \else
@@ -227,6 +230,7 @@
 % correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
+%\epstopdfsetup{outdir=./img}
 
 \begin{document}
 %
@@ -255,9 +259,9 @@ OpenPowerQuality (OPQ) is a framework that supports end-to-end capture, analysis
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
-As power grids transition from a centralized generation model to a distributed model, maintaining a stability requires fine grained knowledge of grid's the state.\cite{ECPAB} Monitoring PQ on a distributed generation smartgrid requires a consumer level distributed sensor network. How do we collect, analyze, and visualize power quality (PQ) on the power grid scale using data gathered from residential utility customers? 
+As power grids transition from a centralized generation model to a distributed model, maintaining a stability requires fine grained knowledge of grid's the state\cite{ECPAB}. Monitoring PQ on a distributed generation smartgrid requires a consumer level distributed sensor network. How do we collect, analyze, and visualize power quality (PQ) on the power grid scale using data gathered from residential utility customers? 
 
-To answer this question, we developed and deployed an open source hardware and software system focused on consumer level monitoring across Oahu called Open Power Quality2(OPQ2). OPQ2 is able to aggregate distributed PQ measurements, perform high level real-time PQ analysis and classification, and display PQ at both the consumer the grid level. OPQ2 is a multi-layered framework consisting of a custom hardware for collecting distributed PQ data (OPQBox2), a middleware for filtering and event detection(OPQMakai), higher level PQ analysis(OPQMauka), and finally a front-end for consumer friendly grid level PQ visualizations(OPQView). OPQ2 architecture is shown in figure \ref{fig:system-architecture}.
+To answer this question, we developed and deployed an open source hardware and software system focused on consumer level monitoring across Oahu called Open Power Quality (OPQ). Version 2, OPQ2 is able to aggregate distributed PQ measurements, perform high level real-time PQ analysis and classification, and display PQ at both the consumer the grid level. OPQ2 is a multi-layered framework consisting of a custom hardware for collecting distributed PQ data (OPQBox2), a middleware for filtering and event detection (OPQMakai), higher level PQ analysis (OPQMauka), and finally a front-end for consumer friendly grid level PQ visualizations (OPQView). OPQ2 architecture is shown in figure \ref{fig:system-architecture}.
 
 %In late 2014 we performed a pilot study to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. 
 
@@ -271,19 +275,17 @@ Each OPQBox2 processes 2.7 billion samples per day. Using node level feature ext
     \caption{OPQ System Architecture}
 \end{figure*}
 
-%\section{Related Work}
-%[TODO:]
-
 \section{OPQ Version 2 Architecture}
 \subsection{OPQBox2}
 OPQBox2 is a modern, high performance, power quality monitor built with distributed measurements in mind. OPQBox2 provides high resolution sampled data of up to 50kS/s at 16bits. Optional GPS synchronization and battery backup can be added to the OPQBox2 to tailor it to a specific power quality measurement. 
 
 While the sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry PI collects 10 AC cycles of ADC measurements at a time and computes the utility frequency and $V_{rms}$. These values are sent to the cloud triggering broker via WiFi while the raw waveforms are buffered in the local Redis key value store.
+
 %Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
 
-If the triggering data stream indicated a power quality event, our middelware may request raw waveforms from the affected of OPQBox2s. When the triggering server requests data from an OpqBox2, it requests a time range. This data is queried from Redis, serialized into a single large data packet, and transfered back to the requesting server. All of the communication between the OPQBox2 and the cloud services are done over an encrypted ZeroMQ connection.\cite{fengping2012distributed}
+If the triggering data stream indicated a power quality event, our middelware may request raw waveforms from the affected of OPQBox2s. When the triggering server requests data from an OpqBox2, it requests a time range. This data is queried from Redis, serialized into a single large data packet, and transferred back to the requesting server. All of the communication between the OPQBox2 and the cloud services are done over an encrypted ZeroMQ connection\cite{fengping2012distributed}.
 
-Time synchronization of the OPQBox2 is performed via Network Time Protocol (NTP).\cite{mills1991internet} While OPQBox2's are able to synchronize via GPS, we found NTP to be suitable for our system. In this paper we verify the synchronization provided by Network Time Protocol (NTP) by comparing frequency measurements collected from two OPQBox2 devices and examining their phase difference.
+Time synchronization of the OPQBox2 is performed via Network Time Protocol (NTP)\cite{mills1991internet}. While OPQBox2's are able to synchronize via GPS, we found NTP to be suitable for our system. In this paper we verify the synchronization provided by Network Time Protocol (NTP) by comparing frequency measurements collected from two OPQBox2 devices and examining their phase difference.
 
 %We also confirm the frequency resolution of the OPQBox by supplying it a 60 Hz signal from a function generator and observing the data recorded by the box. We plot the frequency data and found that our box can accurately record the frequency supplied by the generator.
 
@@ -292,33 +294,36 @@ OPQHub is OPQ's middleware system and is responsible for collecting raw and feat
 
 All communication between the OPQBox2 and OPQHub passes through two connection brokers. These brokers allow us to terminate encryption at the cloud boundary, thus simplifying the analysis framework. ZeroMQ is used throughout our cloud infrastructure to connect the analysis plugins to brokers and other plugins. This allows us to form ad-hoc analysis topologies, such pipeline processing, and map reduce pipelines without interfering with regular data acquisition.
 
-Triggering stream consists of the feature reduced data(frequency and $V_{rms}$) for each device in the OPQ2 network. This stream is brokered via the Triggering broker, and analyzed by the set of analysis plugins called Makai. If multiple devices show temporally coherent deviation from the norm, Makai will request the raw data from OPQBox2 devices via the Acquisition broker. 
+Triggering stream consists of the feature reduced data(frequency and $V_{rms}$) for each device in the OPQ2 network. This stream is brokered via the triggering broker, and analyzed by the set of analysis plugins called OPQMakai. If multiple devices show temporally coherent deviation from the norm, OPQMakai will request the raw data from OPQBox2 devices via the acquisition broker. 
 
-Further analysis of the raw waveform is performed by OPQMauka analysis and classification system.  Each of the plugins in OPQMauka are responsible for different PQ classification and analysis tasks. We currently implement plugins that detect and report PQ measurements, voltage sags and swells, frequency sags and swells, and perform ITIC event classification of voltage events. We've also developed plugins that, along with the filtering framework OPQMakai, allow us to detect these events on a distributed level. Data products from Mauka are stored in MongoDB and presented to clinets use OPQView.
+Further analysis of the raw waveform is performed by OPQMauka analysis and classification system.  Each of the plugins in OPQMauka are responsible for different PQ classification and analysis tasks. We currently implement plugins that detect and report PQ measurements, voltage sags and swells, frequency sags and swells, and perform ITIC event classification of voltage events. We've also developed plugins that, along with the filtering framework OPQMakai, allow us to detect these events on a distributed level. Data products from OPQMauka are stored in MongoDB and presented to clients use OPQView.
 
 
 %For example, the voltage analysis plugin will monitor voltage thresholds and report voltage dips and swells. When the voltage plugin encounters an event, it will produce a voltage event message. The ITIC plugin will consume voltage event messages and classify them by their ITIC classification.
 
 
 \subsection{OPQView}
-OPQView serves as the front-end user interface of the OPQ system. It is implemented in JavaScript using MeteorJS. OPQView serves as the end-point of OPQ2, where power data eventually propagates to for user consumption. As such, OPQView is responsible for displaying collected power quality data in a useful and meaningful way. OPQView maintains a communications interface with OPQHub via a MongoDB database, from which it is able to reactively retrieve real-time PQ data. This data includes voltages and frequencies measured by individual devices, as well as PQ events and their corresponding waveforms.  OPQView does not only serve as a front-end to display real-time data. It can also display historical grid trends and power quality events. 
+OPQView serves as the front-end user interface of the OPQ2 system. It is implemented in JavaScript using MeteorJS. OPQView serves as the end-point of OPQ2, where power data eventually propagates to for user consumption. As such, OPQView is responsible for displaying collected PQ data in a useful and meaningful way. OPQView maintains a communications interface with OPQHub via a MongoDB database, from which it is able to reactively retrieve real-time PQ data. This data includes voltages and frequencies measured by individual devices, as well as PQ events and their corresponding waveforms.  OPQView does not only serve as a front-end to display real-time data, but it can also display historical grid trends and power quality events. 
 %Over time, OPQHub aims to determine patterns in these distributed events, which would allow OPQView to determine 'communities' of devices with similar PQ characteristics. 
+
 The real-time nature of our data allows for a wide potential of visualization techniques - such as real-time heat maps of device voltages and frequencies across the grid. OPQView also supplies the administrative interface for OPQBox2's, allowing device owners to adjust their device's privacy and sharing settings as needed. 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.9\columnwidth]{img/Event1_f.eps}
+    \includegraphics[width=0.9\columnwidth]{img/Event1_f.png}
     \caption{Frequency event. March 1st 2017.}
     \label{fig:event}
 \end{figure}
 
 \section{Results}
 
-Currently OPQHub is capable of detecting and recording frequency and 
+Currently, OPQHub is capable of detecting and recording frequency and 
 voltage based PQ events. Voltage based events include sags, swells.
 Frequency events are limited to frequency deviation from the 60Hz nominal. Example of a triggering stream of a frequency event is shown in Figure \ref{fig:event}. This event occurred during the lighting storm March 1st 2017, and is likely a lighting strike. Two devices were separated by 5 miles and were connected to different substations. 
 %While utility voltage varies wildly between households, utility frequency tends to track closely across the entire grid. 
-Frequency deviations on the order of $\frac{1}{4}$Hz, can lead to load sheading.\cite{GE_LS} A process where a section of the power grid is disconnected from the utility in order to preserve grid stability. Collection and analysis of events such as this one will ultimately lead to insights into power grid operation, and give utility customers a more active role in power grid monitoring.
+
+Frequency deviations on the order of $\frac{1}{4}$Hz, can lead to load shedding\cite{GE_LS}. This is a process where a section of the power grid is disconnected from the utility in order to preserve grid stability. Collection and analysis of events such as this one will ultimately lead to insights into power grid operation, and give utility customers a more active role in power grid monitoring.
+
 %\section{Conclusion}
 %We designed a low cost, real-time, open-source framework capable of aggregating distributed PQ measurements, requesting raw PQ data from specific devices, performing high level real-time PQ analysis and classification, and displaying PQ at both the consumer level and the grid level. 
 %
