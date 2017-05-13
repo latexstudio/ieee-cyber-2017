@@ -277,17 +277,22 @@ Each OPQBox2 processes 2.7 billion samples per day. Using node level feature ext
 \end{figure*}
 
 \section{Related Work}
-In late 2014 we performed a pilot study to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level.
+
+Several power quality monitoring sensor networks,have been deployed around the world. The PQube devices are high performance 3 phase power quality monitors developed by the Power Standards Lab(PSL). PQube is capable of measuring both current and voltage waveforms at an extremely high sampling rate and accuracy. PQubes devices utilize local processing for event detection and classification. Similarly the FNET project deployed several dozen Frequency Disturbance Recorder(FDR) devices across the continental United States. These devices measure the grid frequency at their location, while the GridEye web service displayed the real time grid status collected from the FDRs.
+
+While both PQube and FDR devices are well suited for sparse grid monitoring, their price and reliance on local processing, makes them less then ideal for dense deployment. Furthermore residential power quality monitoring is plagued with privacy concerns. Lack of end-to-end encryption makes devices such as FDR unsuitable for wide deployment in residential settings.
+
+In late 2014 we performed a pilot study(OPQ1) to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. OPQ1 attempted to solve the privacy issues by allowing the device owner to coarsely set the device location.
 
 \section{OPQ Version 2 Architecture}
 \subsection{OPQBox2}
 OPQBox2 is a modern, high performance, power quality monitor built with distributed measurements in mind. OPQBox2 provides high resolution sampled data of up to 50kS/s at 16bits. Optional GPS synchronization and battery backup can be added to the OPQBox2 to tailor it to a specific power quality measurement. 
 
-OPQBox2 is assembled entirely in-house, from the enclosure to the soldering of the components. The PCB schematic is open-source and available online. The enclosure for OPQBox2 is cut to specification from acrylic sheets using a laser cutter. Reflow soldering is used to attach the surface mount components to the PCB, using a laser cut solder mask stencil to allow easy application of solder paste to all of the contact pads. The board is reflowed and any excess solder is removed using a solder wick and heat gun.
+OPQBox2 is assembled entirely in-house, from the enclosure to the soldering of the components. The PCB schematic is open-source and available online. The enclosure for OPQBox2 is cut to specification from acrylic sheets using a laser cutter. Reflow soldering is used to attach the surface mount components to the PCB, using a laser cut solder mask stencil to allow easy application of solder paste to all of the contact pads. 
 
 While sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry PI collects 10 AC cycles of ADC measurements at a time and computes the utility frequency and $V_{rms}$. These values are sent to the cloud triggering broker via WiFi while the raw waveforms are buffered in the local Redis key value store.
 
-Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
+%Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
 
 If the triggering data stream indicates a power quality event, our middleware may request raw waveforms from the affected OPQBox2s. When the triggering server requests data from an OpqBox2, it requests a time range. This data is queried from Redis, serialized into a single large data packet, and transferred back to the requesting server. All of the communication between the OPQBox2 and the cloud services are done over an encrypted ZeroMQ connection\cite{fengping2012distributed}.
 
@@ -309,6 +314,17 @@ Further analysis of the raw waveform is performed by the OPQMauka analysis and c
 OPQHub's components, OPQMakai and OPQMauka are described in further detail in the following sections.
 
 \subsection{OPQMakai}
+
+OPQMakai is responsible for selectively requesting raw voltage waveform data from opqboxes by analyzing their triggering stream. Triggering stream consists of the locally measured voltage and frequency for a 10 cycle window. Root mead square voltage measurements identifies voltage swells and voltage sags. For the results of this paper, we set the threshold to be +/- 5\% of 120 $V_{rms}$. 
+Frequency measurements are used to identify frequency deviations. For the results of this paper, we set the threshold to be +/- 1\% of 60 Hz. Once voltage or frequency event is identified, the triggering system request raw waveform data for 10 seconds around the anomaly. If the duration of the anomaly is longer then the 10 seconds the leading and only the trailing edge of the disturbance is recorded. Raw waveform data is stored in the in-memory Redis database, and OPQMauka is notified of a new event.
+Figure \ref{fig:event1} shows the triggering stream reported to by an OPQBox2 during a voltage sag. While the raw waveform is comprised of 10k samples, only 9 $V_{rms}$ samples are transmitted for the event detection.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{img/single_device_sag.pdf}
+    \caption{Voltage sag as measured by the OPQBox2. Positive half of the raw waveform is shown in red. The voltage triggering stream is shown in red.}
+    \label{fig:event1}
+\end{figure}
 
 \subsection{OPQMauka}
 OPQMauka is a distributed high-level sensor data analysis platform. OPQMauka provides a distributed computation model that is capable of scaling with the amount of sensor data it is receiving. The OPQMauka processing pipeline is implemented as a directed acyclic graph (DAG). Communication between vertices in the graph is provided via ZeroMQ. Each node in the graph is implemented by an OPQMauka Plugin. 
