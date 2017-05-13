@@ -282,6 +282,8 @@ Each OPQBox2 processes 2.7 billion samples per day. Using node level feature ext
 \subsection{OPQBox2}
 OPQBox2 is a modern, high performance, power quality monitor built with distributed measurements in mind. OPQBox2 provides high resolution sampled data of up to 50kS/s at 16bits. Optional GPS synchronization and battery backup can be added to the OPQBox2 to tailor it to a specific power quality measurement. 
 
+OPQBox2 is assembled entirely in-house, from the enclosure to the soldering of the components. The PCB schematic is open-source and available online. The enclosure for OPQBox2 is cut to specification from acrylic sheets using a laser cutter. Reflow soldering is used to attach the surface mount components to the PCB, using a laser cut solder mask stencil to allow easy application of solder paste to all of the contact pads. The board is reflowed and any excess solder is removed using a solder wick and heat gun.
+
 While sampling and GPS synchronization is controlled by the realtime DSP, all of the signal processing and communication is controlled by a Raspberry PI single board computer. The Raspberry PI collects 10 AC cycles of ADC measurements at a time and computes the utility frequency and $V_{rms}$. These values are sent to the cloud triggering broker via WiFi while the raw waveforms are buffered in the local Redis key value store.
 
 %Each chunk is stored is a Redis sorted-set, indexed by timestamp. Range queries on raw waveform data occur in $\mathcal{O}(\log{}n + m)$ time. Older entries in the buffer are expired via a garbage collection process after a configurable amount of time. 
@@ -310,9 +312,7 @@ OPQMakai and OPQMauaka are described in further detail in the following sections
 \subsection{OPQMauka}
 OPQMauka is a distributed high-level sensor data analysis platform. OPQMauka provides a distributed computation model that is capable of scaling with the amount of sensor data it is receiving. The OPQMauka processing pipeline is implemented as a directed acyclic graph (DAG). Communication between vertices in the graph is provided via ZeroMQ. Each node in the graph is implemented by an OPQMauka Plugin. 
 
-Each OPQMauka Plugin provides a set of topics that it subscribes to and a set of topics that it produces. These topics form the edges between vertices in our graph. Because each plugin is independent and only relies on retrieving and transmitting data over ZeroMQ, plugins can be implemented in any programming language and executed on any machine in a network. This design allows us to easily scale plugins across multiple machines in order to increase throughput. The following sections will describe the plugins currently available in OPQMauka.
-
-The structure of OPQMauka is provided if figure \ref{fig:opqmauka}.
+Each OPQMauka Plugin provides a set of topics that it subscribes to and a set of topics that it produces. These topics form the edges between vertices in our graph. Because each plugin is independent and only relies on retrieving and transmitting data over ZeroMQ, plugins can be implemented in any programming language and executed on any machine in a network. This design allows us to easily scale plugins across multiple machines in order to increase throughput. Further, this system makes it possible to create and activate new plugins into the OPQMauka framework. Plugins can be enabled or disabled without affected the rest of the framework. The structure of OPQMauka is show in figure \ref{fig:opqmauka}.
 
 \begin{figure}
 	%\centering
@@ -323,7 +323,7 @@ The structure of OPQMauka is provided if figure \ref{fig:opqmauka}.
 
 The following paragraphs briefly describe the working of each plugin within the OPQMauka framework.
 
-The OPQMauka Measurements Plugin subscribes to the triggering data stream, and samples the data at a configurable interval and stores these measurements in MongoDB for providing realtime visualizations of PQ data. This plugin produces measurement messages which are used by the voltage and frequency plugins to determine high-level voltage and frequency PQ events.
+The OPQMauka Measurements Plugin subscribes to OPQMakai's triggering data stream, and samples the data at a configurable interval and stores these measurements in MongoDB for providing realtime visualizations of PQ data. This plugin produces measurement messages which are used by the voltage and frequency plugins to determine high-level voltage and frequency PQ events.
 
 The OPQMauka Voltage Plugin subscribes to measurement messages and identifies voltage swells and voltage sags. The threshold by which the plugin identifies swells and sags is configurable. For the results of this paper, we set the threshold to be +/- 5\% of 120 Volts. Once voltage events are identified, the event is stored in a MongoDB and a voltage event message is produced.
 
