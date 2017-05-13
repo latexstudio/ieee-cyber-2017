@@ -342,15 +342,16 @@ The following paragraphs briefly describe the working of each plugin within the 
 
 The OPQMauka Measurements Plugin subscribes to OPQMakai's triggering data stream, and samples the data at a configurable interval and stores these measurements in MongoDB for providing realtime visualizations of PQ data. This plugin produces measurement messages which are used by the voltage and frequency plugins to determine high-level voltage and frequency PQ events.
 
-The OPQMauka Voltage Plugin subscribes to measurement messages and identifies voltage swells and voltage sags. The threshold by which the plugin identifies swells and sags is configurable. For the results of this paper, we set the threshold to be +/- 5\% of 120 Volts. Once voltage events are identified, the event is stored in a MongoDB and a voltage event message is produced.
+The OPQMauka Voltage Plugin subscribes to high-level trigger measurement messages and quickly identifies voltage swells and voltage sags. The threshold by which the plugin identifies swells and sags is configurable. For the results of this paper, we set the threshold to be +/- 5\% of 120 Volts. Once voltage events are identified, the event is stored in a MongoDB and a voltage event message is produced. These events can be visualized in realtime using OPQView while OPQMakai and the triggering framework collect raw data.
 
-The OPQMauka Frequency Plugin subscribes to measurement messages and identifies frequency swells and frequency sags. The threshold by which the plugin identifies swells and sags is configurable. For the results of this paper, we set the threshold to be +/- 1\% of 60 Hz. Once frequency events are identified, the event is stored in a MongoDB and a frequency event message is produced.
+The OPQMauka Frequency Plugin subscribes to  high-level trigger measurement messages and identifies frequency swells and frequency sags. The threshold by which the plugin identifies swells and sags is configurable. For the results of this paper, we set the threshold to be +/- 1\% of 60 Hz. Once frequency events are identified, the event is stored in a MongoDB and a frequency event message is produced. These events can be also be visualized in realtime using OPQView.
 
 The OPQMauka ITIC Plugin subscribes to voltage events and classifies them using the ITIC Curve\cite{ITIC}, a power standardization curve that determines the likelihood of causing damage to consumer equipment based on the magnitude and duration of a voltage event. Classified ITIC events are stored in MongoDB.
 
-The OPQMauka Triggering Plugin subscribes to voltage and frequency event messages, and requests raw PQ data from the network. By monitoring high-level voltage and frequency events, we can selectively decide which sets of raw PQ data should be analyzed for transient detection. This plugin interfaces and works alongside OPQMakai by utilizing a request/response pattern over a ZeroMQ socket. When this plugin requests data from OPQMakai, OPQMakai immediately responds with an $event id$. This plugin will then forward the $event id$ to the OPQMauka Data Plugin which will asynchronously receive raw data payloads from OPQMakai.
+%The OPQMauka Triggering Plugin subscribes to voltage and frequency event messages, and requests raw PQ data from the network. By monitoring high-level voltage and frequency events, we can selectively decide which sets of raw PQ data should be analyzed for transient detection. This plugin interfaces and works alongside OPQMakai by utilizing a request/response pattern over a ZeroMQ socket. When this plugin requests data from OPQMakai, OPQMakai immediately responds with an $event id$. This plugin will then forward the $event id$ to the OPQMauka Data Plugin which will asynchronously receive raw data payloads from OPQMakai.
 
-The OPQMauka Data Plugin subscribes to acquisition messages, waits a configurable amount of time for raw data from OPQMakai to be populated from Redis, and then reads the data from Redis, deserializes the raw data, and stores the data and associated meta-data in MongoDB for further DSP processing and historical analysis. 
+
+The OPQMauka Data Plugin subscribes to acquisition messages, waits a configurable amount of time for raw data from OPQMakai to be populated from Redis, and then reads the data from Redis, deserializes the raw data, and stores the data and associated meta-data in MongoDB for further DSP processing (namely classification) and for historical analysis. 
 
 Finally, the OPQMauka Status Plugin subscribes to heartbeat messages which are produced by all OPQMauka plugins. Heartbeat messages contain optional statistics about the state of individual plugins and their respective workloads. The status plugin stores health information in MongoDB which can be queried to examine the overall health of OPQMauka and its distributed plugins.
 
@@ -369,8 +370,8 @@ Table \ref{table:opqmauka} summarizes the topics that each plugin subscribes and
 		\hline 
 		ITIC &  VoltageEvt & Heartbeat, ITIC \\ 
 		\hline 
-		Triggering & FrequencyEvt, VoltageEvt & Heartbeat, Acquisition \\ 
-		\hline 
+		%Triggering & FrequencyEvt, VoltageEvt & Heartbeat, Acquisition \\ 
+		%\hline 
 		Data &  Acquisition & Heartbeat, DataStored \\ 
 		\hline 
 		Status & Heartbeat &  \\ 
