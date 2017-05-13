@@ -211,6 +211,11 @@
 % *** PDF, URL AND HYPERLINK PACKAGES ***
 %
 \usepackage{url}
+\usepackage{breakurl} 
+\usepackage[breaklinks]{hyperref}
+
+\def\UrlBreaks{\do\/\do-}
+
 % url.sty was written by Donald Arseneau. It provides better support for
 % handling and breaking URLs. url.sty is already installed on most LaTeX
 % systems. The latest version and documentation can be obtained at:
@@ -262,11 +267,11 @@ OpenPowerQuality (OPQ) is a framework that supports end-to-end capture, analysis
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
-As power grids transition from a centralized generation model to a distributed model, maintaining stability requires fine grained knowledge of the grid's state\cite{ECPAB}. Increases of distributed intermittent renewable energy sources have caused concern among utility and grid operators. Grid operators are concerned that these renewables have negative effects on the power grid. For example, in Hawaii, the public utility was forced to halt photovoltaic (PV) installations in certain neighborhoods due to concern that large penetrations of PV could cause grid stability problems\cite{fares_2015}\cite{mulkern_2013}. Monitoring power quality (PQ) on a distributed generation smartgrid requires a distributed sensor network. How do we collect, analyze, and visualize PQ at the power grid scale using data gathered from residential utility customers? 
+As power grids transition from a centralized generation model to a distributed model, maintaining stability requires fine grained knowledge of the grid's state\cite{ECPAB}. Increases in distributed intermittent renewable energy sources have caused concern among utility and grid operators. Grid operators are concerned that these renewables have negative effects on the power grid. For example, in Hawaii, the public utility was forced to halt photovoltaic (PV) installations in certain neighborhoods due to concern that large penetrations of PV could cause grid stability problems\cite{fares_2015}\cite{mulkern_2013}. Monitoring power quality (PQ) on a distributed generation smartgrid requires a distributed sensor network. How do we collect, analyze, and visualize PQ at the power grid scale using data gathered from residential utility customers? 
 
 To answer this question, we developed and deployed an open source hardware and software system focused on consumer level monitoring across Oahu called Open Power Quality (OPQ). Version 2 of OPQ (OPQ2) is able to aggregate distributed PQ measurements, perform high level real-time PQ analysis and classification, and display PQ at both the consumer and grid level. OPQ2 is a multi-layered framework consisting of custom hardware for collecting distributed PQ data (OPQBox2), a middleware for filtering and event detection (OPQMakai), higher level PQ analysis (OPQMauka), and finally a front-end for consumer friendly grid level PQ visualizations (OPQView). The OPQ2 architecture is shown in figure \ref{fig:system-architecture}.
 
-Each OPQBox2 processes 2.7 billion samples per day. Using node level feature extraction, OPQBox2's forwards only 500,000 measurements to the cloud service in the same 24 hours. Further analysis and filtering yields roughly 1 distributed PQ event per day. These events contain data from every device on the network sampled at full resolution and sampling rate.  Through the use of our multi-tiered system, we aim to bring grid operators and end users, useful, intuitive, actionable, real-time information about the power grid.
+Each OPQBox2 processes 2.7 billion samples per day. Using node level feature extraction, OPQBox2's forwards only 500,000 measurements to the cloud service in the same 24 hours. Further analysis and filtering typically yields a very small number of PQ events. These events contain data from every device on the network sampled at full resolution and sampling rate.  Through the use of our multi-tiered system, we aim to bring grid operators and end users, useful, intuitive, actionable, real-time information about the power grid.
 
 %Finally, we could produce these boxes for under \$100 each. This is roughly an order of magnitude cheaper than other power quality monitoring equipment and is better suited for our applications.
 
@@ -278,11 +283,11 @@ Each OPQBox2 processes 2.7 billion samples per day. Using node level feature ext
 
 \section{Related Work}
 
-Two prominent distributed power quality monitoring networks are PQube and FNET/GridEye. The PQube devices are high performance 3 phase power quality monitors developed by the Power Standards Lab(PSL). PQube is capable of measuring both current and voltage waveforms at an extremely high sampling rate and accuracy. PQubes devices utilize local processing for event detection and classification, and has many option for data transmission. Similarly the FNET project deployed several dozen Frequency Disturbance Recorder(FDR) devices across the continental United States. These devices measure the grid frequency at their location, while the GridEye web service displayed the real time grid status collected from the FDRs.
+Two prominent distributed power quality monitoring networks are PQube and FNET/GridEye. The PQube devices are high performance 3 phase power quality monitors developed by the Power Standards Lab (PSL). PQube is capable of measuring both current and voltage waveforms at an extremely high sampling rate and accuracy. PQubes devices utilize local processing for event detection and classification, and has many option for data transmission. Similarly the FNET project deployed several dozen Frequency Disturbance Recorder (FDR) devices across the continental United States. These devices measure the grid frequency at their location, while the GridEye web service displayed the real time grid status collected from the FDRs.
 
 While both PQube and FDR devices are well suited for sparse grid monitoring, their price and reliance on local processing, makes them less then ideal for dense deployment. Residential power quality monitoring is further complicated by privacy concerns. Lack of end-to-end encryption makes devices such as FDR unsuitable for wide deployment in residential settings. 
 
-In late 2014 we performed a pilot study(OPQ1) to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. OPQ1 attempted to solve the privacy issues by allowing the device owner to coarsely set the device location. While successful it unnecessarily complicated the classification and analysis. OPQ2 uses a coarse feature extracted data from each box at the grid level to detect events which are temporally and spatially correlated. This allows OPQ2 system to process raw data containing only grid side events. 
+In late 2014 we performed a pilot study (OPQ1) to test the feasibility of our hardware and software system. Data collected during this study showed strong correlations between PV production and daily voltage trends. We demonstrated that a grid wide view allows us to determine if PQ events take place at the consumer level or at the grid level. OPQ1 attempted to solve the privacy issues by allowing the device owner to coarsely set the device location. While successful it unnecessarily complicated the classification and analysis. OPQ2 uses a coarse feature extracted data from each box at the grid level to detect events which are temporally and spatially correlated. This allows OPQ2 system to process raw data containing only grid side events. 
 
 \section{OPQ Version 2 Architecture}
 \subsection{OPQBox2}
@@ -315,8 +320,8 @@ OPQHub's components, OPQMakai and OPQMauka are described in further detail in th
 
 \subsection{OPQMakai}
 
-OPQMakai is responsible for selectively requesting raw voltage waveform data from opqboxes by analyzing their triggering stream. Triggering stream consists of the locally measured voltage and frequency for a 10 cycle window. Root mead square voltage measurements identifies voltage swells and voltage sags. For the results of this paper, we set the threshold to be +/- 5\% of 120 $V_{rms}$. 
-Frequency measurements are used to identify frequency deviations. For the results of this paper, we set the threshold to be +/- 1\% of 60 Hz. Once voltage or frequency event is identified, the triggering system request raw waveform data for 10 seconds around the anomaly. If the duration of the anomaly is longer then the 10 seconds the leading and only the trailing edge of the disturbance is recorded. Raw waveform data is stored in the in-memory Redis database, and OPQMauka is notified of a new event.
+OPQMakai is responsible for selectively requesting raw voltage waveform data from opqboxes by analyzing their triggering stream. Triggering stream consists of the locally measured voltage and frequency for a 10 cycle window. Root mean square voltage measurements identifies voltage swells and voltage sags. For the results of this paper, we set the threshold to be +/- 5\% of 120 $V_{rms}$. 
+Frequency measurements are used to identify frequency deviations. For the results of this paper, we set the threshold to be +/- 1\% of 60 Hz. Once voltage or frequency event is identified, the triggering system requests raw waveform data for 10 seconds around the anomaly. If the duration of the anomaly is longer, then the leading and the trailing edge of the disturbance is recorded. Raw waveform data is stored in the in-memory Redis database, and OPQMauka is notified of a new event.
 Figure \ref{fig:event1} shows the triggering stream reported to by an OPQBox2 during a voltage sag. While the raw waveform is comprised of 10k samples, only 9 $V_{rms}$ samples are transmitted for the event detection.
 
 \begin{figure}[h]
@@ -406,7 +411,7 @@ Frequency events are limited to frequency deviation from the 60Hz nominal. Examp
 
 Frequency deviations on the order of $\frac{1}{4}$Hz, can lead to load shedding\cite{GE_LS}. This is a process where a section of the power grid is disconnected from the utility in order to preserve grid stability. Collection and analysis of events such as this one will ultimately lead to insights into power grid operation, and give utility customers a more active role in power grid monitoring.
 
-Future work on OPQ2 will focus on event detection and classification. Detection capabilities will be expanded to include transient detection and sub-threshold behavior such as flicker. From OPQ1 we found that device level transient detection leads to a high rate of false positives, thus OPQ2 transient detection will involve a combination of device level feature extraction, and server level correlation strategies. Currently several methods based on spectral and compressed sencing strategies are being evaluated. 
+Future work on OPQ2 will focus on event detection and classification. Detection capabilities will be expanded to include transient detection and sub-threshold behavior such as flicker. From OPQ1 we found that device level transient detection leads to a high rate of false positives, thus OPQ2 transient detection will involve a combination of device level feature extraction, and server level correlation strategies. Currently several methods based on spectral and compressed sensing strategies are being evaluated. 
 
 
 %We designed a low cost, real-time, open-source framework capable of aggregating distributed PQ measurements, requesting raw PQ data from specific devices, performing high level real-time PQ analysis and classification, and displaying PQ at both the consumer level and the grid level. 
