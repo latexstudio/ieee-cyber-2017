@@ -262,7 +262,7 @@ OpenPowerQuality (OPQ) is a framework that supports end-to-end capture, analysis
 \IEEEpeerreviewmaketitle
 
 \section{Introduction}
-As power grids transition from a centralized generation model to a distributed model, maintaining stability requires fine grained knowledge of the grid's state\cite{ECPAB}. Monitoring power quality (PQ) on a distributed generation smartgrid requires a distributed sensor network. How do we collect, analyze, and visualize PQ at the power grid scale using data gathered from residential utility customers? 
+As power grids transition from a centralized generation model to a distributed model, maintaining stability requires fine grained knowledge of the grid's state\cite{ECPAB}. Increases of distributed intermittent renewable energy sources have caused concern among utility and grid operators. Grid operators are concerned that these renewables have negative effects on the power grid. For example, in Hawaii, the public utility was forced to halt photovoltaic (PV) installations in certain neighborhoods due to concern that large penetrations of PV could cause grid stability problems\cite{fares_2015}\cite{mulkern_2013}. Monitoring power quality (PQ) on a distributed generation smartgrid requires a distributed sensor network. How do we collect, analyze, and visualize PQ at the power grid scale using data gathered from residential utility customers? 
 
 To answer this question, we developed and deployed an open source hardware and software system focused on consumer level monitoring across Oahu called Open Power Quality (OPQ). Version 2 of OPQ (OPQ2) is able to aggregate distributed PQ measurements, perform high level real-time PQ analysis and classification, and display PQ at both the consumer and grid level. OPQ2 is a multi-layered framework consisting of custom hardware for collecting distributed PQ data (OPQBox2), a middleware for filtering and event detection (OPQMakai), higher level PQ analysis (OPQMauka), and finally a front-end for consumer friendly grid level PQ visualizations (OPQView). The OPQ2 architecture is shown in figure \ref{fig:system-architecture}.
 
@@ -303,9 +303,9 @@ All communication between the OPQBox2 and OPQHub passes through two connection b
 
 The triggering stream consists of the feature reduced data(frequency and $V_{rms}$) for each device in the OPQ2 network. This stream is brokered via the triggering broker, and analyzed by the set of analysis plugins called OPQMakai. If multiple devices show temporally coherent deviation from the norm, OPQMakai will request the raw data from OPQBox2 devices via the acquisition broker. 
 
-Further analysis of the raw waveform is performed by the OPQMauka analysis and classification system. Each of the plugins in OPQMauka are responsible for different PQ classification and analysis tasks. We currently implement plugins that detect and report PQ measurements, voltage sags and swells, frequency sags and swells, and perform ITIC event classification of voltage events. We've also developed plugins that, along with the filtering framework OPQMakai, allow us to detect these events on a distributed level. Data products from OPQMauka are stored in MongoDB and presented to clients use OPQView.
+Further analysis of the raw waveform is performed by the OPQMauka analysis and classification system. Each of the plugins in OPQMauka are responsible for different PQ classification and analysis tasks. We currently implement plugins that detect and report PQ measurements, voltage sags and swells, frequency sags and swells, and perform ITIC event classification of voltage events. We've also developed plugins that, along with the filtering framework OPQMakai, allow us to detect these events on a distributed level. Data products from OPQMauka are stored in a MongoDB database and are presented to clients via OPQView.
 
-OPQMakai and OPQMauaka are described in further detail in the following sections.
+OPQHub's compoenets, OPQMakai and OPQMauaka are described in further detail in the following sections.
 
 \subsection{OPQMakai}
 
