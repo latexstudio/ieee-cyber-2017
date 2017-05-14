@@ -390,7 +390,16 @@ Table \ref{table:opqmauka} summarizes the topics that each plugin subscribes and
  
 \subsection{OPQView}
 OPQView serves as the front-end user interface of the OPQ2 system. It is implemented in JavaScript using MeteorJS. OPQView serves as the end-point of OPQ2. OPQView is responsible for displaying collected PQ data in a useful and meaningful way. OPQView maintains a communications interface with OPQHub via a MongoDB database, from which it is able to reactively retrieve real-time PQ data. This data includes voltages and frequencies measured by individual devices, as well as PQ events and their corresponding waveforms.  OPQView does not only serve as a front-end to display real-time data, but it can also display historical grid trends and power quality events. 
+
+A screenshot of our realtime PQ events and measurements from OPQView is shown in figure \ref{fig:opqview}.
 %Over time, OPQHub aims to determine patterns in these distributed events, which would allow OPQView to determine 'communities' of devices with similar PQ characteristics. 
+
+\begin{figure}
+    %\centering
+    \includegraphics[width=1.0\linewidth]{img/opqview}
+    \caption[OPQView]{OPQView Realtime Measurements and PQ Events}
+    \label{fig:opqview}
+\end{figure}
 
 The real-time nature of our data allows for a wide potential of visualization techniques - such as real-time heat maps of device voltages and frequencies across the grid. OPQView also supplies the administrative interface for OPQBox2's, allowing device owners to adjust their device's privacy and sharing settings as needed. 
 
